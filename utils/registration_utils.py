@@ -103,3 +103,21 @@ def move_point_cloud(post_array, transform):
     point_cloud.transform(transform)
     return np.asarray(point_cloud.points)
 
+
+def compute_asd(pcd1, pcd2):
+    """This function computes the average surface distance between two point clouds. The two point clouds are
+    represented as nx3 ndarrays.
+
+    Returns:
+        asd: The average surface distance between the two point clouds
+    """
+
+    p_moved = o3d.geometry.PointCloud()
+    p_moved.points = o3d.utility.Vector3dVector(pcd1)
+
+    p_fixed = o3d.geometry.PointCloud()
+    p_fixed.points = o3d.utility.Vector3dVector(pcd2)
+
+    distances = p_moved.compute_point_cloud_distance(p_fixed)
+    asd = np.mean(distances)
+    return asd
