@@ -88,10 +88,13 @@ def register_bones(fixed_points, moving_points, output_option):
         pcd_fixed.paint_uniform_color([0, 0.651, 0.929])
         o3d.visualization.draw_geometries([pcd_moved, pcd_fixed], window_name="ICP Result")
 
+    # Convert pcd back to ndarray
+    pcd_moved = np.asarray(pcd_moved.points)
+
     return pcd_moved, icp.transformation
 
 
-def move_point_cloud(post_array, transform):
+def move_points(post_array, transform):
     """Takes in a nx3 ndarray of a point cloud, and a (4, 4) transform and transforms the point cloud
 
     Returns:
