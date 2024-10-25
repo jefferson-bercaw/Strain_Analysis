@@ -127,7 +127,7 @@ def remove_outer_boundaries(points, values, radius=5, n=7, percent=10):
     return points_filtered, values_filtered
 
 
-def save_map(points, values, filename, text_to_add=None, colorbar_title="value", rng=None):
+def plot_map(points, values, filename=None, text_to_add=None, colorbar_title="value", rng=None):
     """This function takes in a point map (thickness or strain), and saves it to a .png file. Optionally, you can at add text
     to the top of the image, or specify the range of the colormap
 
@@ -142,7 +142,13 @@ def save_map(points, values, filename, text_to_add=None, colorbar_title="value",
     strain_cloud = pv.PolyData(np.transpose([points[:, 0], points[:, 1], points[:, 2]]))
 
     surf = strain_cloud.delaunay_2d(alpha=2)
-    plotter = pv.Plotter(off_screen=True)
+
+    # If filename is not specified, plot the image, and don't save it
+    if filename is not None:
+        plotter = pv.Plotter(off_screen=True)
+    else:
+        plotter = pv.Plotter(off_screen=False)
+
     surf[colorbar_title] = values
 
     if rng is None:
@@ -156,8 +162,9 @@ def save_map(points, values, filename, text_to_add=None, colorbar_title="value",
     if text_to_add is not None:
         plotter.add_text(text_to_add, font_size=10, color="black", position="upper_edge", font="times")
 
-    plotter.screenshot(filename)
-    plotter.close()
+    if filename is not None:
+        plotter.screenshot(filename)
+        plotter.close()
     return
 
 
