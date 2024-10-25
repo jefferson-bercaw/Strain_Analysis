@@ -12,7 +12,7 @@ def load_pcd_file(filename):
         points: The point cloud as a numpy array (nx3)
     """
     pcd = o3d.io.read_point_cloud(filename)
-    points = np.asarray(pcd.points)
+    points = np.asarray(pcd.points) * 1000.0 # Convert to mm
     return points
 
 
