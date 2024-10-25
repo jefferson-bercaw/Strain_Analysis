@@ -5,6 +5,51 @@ import open3d as o3d
 import scipy
 import pyvista as pv
 
+def calculate_strain(pre_cart, pre_thick, post_cart, post_thick):
+    """This function returns strain coordinates and strain values for two bone and thickness values"""
+
+    # Find the closest points of the pre cartilage to the post cartilage
+    distances = scipy.spatial.distance.cdist(post_cart, pre_cart)
+    closest_indices = np.argmin(distances, axis=1)  # indices of the pre_cart closest to the post_cart
+
+    # Initialize arrays
+    strain_points = []
+    strain = []
+
+    # Iterate through the post cartilage points
+    for i in range(len(post_cart)):
+        # Get coordinates of the two corresponding points
+        post_coord = post_cart[i]
+        pre_coord = pre_cart[closest_indices[i]]
+
+        # Find average thickness values within a 2.5 mm radius
+        radius_mm = 2.5
+        post_dists = np.linalg.norm(post_coord - post_cart, axis=1)
+        post_inds = post_dists < radius_mm
+        post_thick_here = np.mean(post_thick[post_inds])
+
+        pre_dists = np.linalg.norm(pre_coord - pre_cart, axis=1)
+        pre_inds = pre_dists < radius_mm
+        pre_thick_here = np.mean(pre_thick[pre_inds])
+
+        # Threshold distance. If the distance between these two coordinates isn't too large, add to strain map.
+        dist_thresh = 1.0  # distance [mm] that signifies a "good" comparison
+
+        if np.linalg.norm(pre_coord - post_coord) < dist_thresh:
+            # Append the pre_coord to the strain map
+            strain_points.append(pre_coord)
+
+            # Calculate strain
+            strain_here = (post_thick_here - pre_thick_here) / pre_thick_here
+            strain.append(strain_here)
+
+    # Convert coords and strain lists to numpy arrays
+    strain_points = np.array(strain_points)
+    strain = np.array(strain)
+
+    return strain_points, strain
+
+
 def average_point_cloud(points, values, radius=2.5):
     """This function averages the values associated with a point cloud (i.e. thickness or strain) based on a moving
     sphere with a specified radius.
