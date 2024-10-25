@@ -127,14 +127,14 @@ def remove_outer_boundaries(points, values, radius=5, n=7, percent=10):
     return points_filtered, values_filtered
 
 
-def plot_map(points, values, filename=None, text_to_add=None, colorbar_title="value", rng=None):
+def plot_map(points, values, filename=None, text_to_add=None, colorbar_title="value", rng=None, cmap="jet"):
     """This function takes in a point map (thickness or strain), and saves it to a .png file. Optionally, you can at add text
     to the top of the image, or specify the range of the colormap
 
     Inputs:
         points: coordinates we're plotting (nx3 ndarray)
         values: values we're plotting, such as strain or thickness (nx1 ndarray)
-        filename: The filename to save the map to (str)
+        filename: The filename to save the map to (str). If not specified, this function plots it instead.
         text_to_add: Text to add to the top of the image (str): Defaulting to None
         colorbar_title: Title of the colorbar (str): Defaulting to "value"
         rng: Range of the colormap (tuple). Defaulting to fit the data if none is specified
@@ -154,7 +154,7 @@ def plot_map(points, values, filename=None, text_to_add=None, colorbar_title="va
     if rng is None:
         rng = [np.min(values), np.max(values)]
 
-    plotter.add_mesh(surf, show_edges=False, cmap="jet", rng=rng)
+    plotter.add_mesh(surf, show_edges=False, cmap=cmap, rng=rng)
 
     # Set view vector: may need to change
     plotter.view_vector([0, -1, 0], [1, 0, 0])
@@ -165,6 +165,8 @@ def plot_map(points, values, filename=None, text_to_add=None, colorbar_title="va
     if filename is not None:
         plotter.screenshot(filename)
         plotter.close()
+    else:
+        plotter.show()
     return
 
 
