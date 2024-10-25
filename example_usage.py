@@ -3,9 +3,9 @@
 import numpy as np
 import os
 
-from utils.strain_utils import average_point_cloud, remove_outer_boundaries, calculate_thickness, calculate_strain
+from utils.strain_utils import average_point_cloud, remove_outer_boundaries, calculate_thickness, calculate_strain, plot_map
 from utils.registration_utils import register_bones, move_points, compute_asd
-from utils.io_utils import load_pcd_file, save_pcd_file
+from utils.io_utils import load_pcd_file
 
 if __name__ == "__main__":
 
@@ -39,10 +39,15 @@ if __name__ == "__main__":
     strain_points, strain = calculate_strain(pre_cart, pre_thick, post_cart, post_thick)
 
     # Remove outer boundaries
-    strain_points, strain = remove_outer_boundaries(strain_points, strain, radius=5, n=7, percent=10)
+    strain_points_rm, strain_rm = remove_outer_boundaries(strain_points, strain, radius=5, n=7, percent=10)
 
     # Apply a moving average to the strain
-    strain = average_point_cloud(strain_points, strain, radius=2.5)
+    strain_final = average_point_cloud(strain_points_rm, strain_rm, radius=2.5)
 
-    print("Mean Strain: ", np.mean(strain))
+    # Plot process
+    plot_map(pre_cart, pre_thick, text_to_add="Pre Cartilage Thickness", colorbar_title="Thickness (mm)")
+    plot_map(post_cart, post_thick, text_to_add="Post Cartilage Thickness", colorbar_title="Thickness (mm)")
+    plot_map(strain_points, strain, text_to_add="Original Strain Map", cmap="seismic", rng=[-np.max(np.abs(strain)), np.max(np.abs(strain))], colorbar_title="Strain")
+    plot_map(strain_points_rm, strain_rm, text_to_add="Strain Map with Outer Boundaries Removed", cmap="seismic", rng=[-np.max(np.abs(strain_rm)), np.max(np.abs(strain_rm))], colorbar_title="Thickness (mm)")
+    plot_map(strain_points_rm, strain_final, text_to_add="Final Strain Map", cmap="seismic", rng=[-np.max(np.abs(strain_final)), np.max(np.abs(strain_final))], colorbar_title="Thickness (mm)")
 
